@@ -5,7 +5,7 @@ from .widgets.price_widget import PriceWidget
 
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.setWindowTitle("Crypto Price Tracker")
         self.setGeometry(100, 100, 800, 600)
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
             self.layout.addWidget(price_widget)
             self.price_widgets[coin] = price_widget
 
-    def update_price_widgets(self, data):
+    def update_price_widgets(self, data: dict) -> None:
         for coin, info in data.items():
             if coin in self.price_widgets:
                 self.price_widgets[coin].update_price(
