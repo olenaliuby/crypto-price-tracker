@@ -28,7 +28,10 @@ class MainWindow(QMainWindow):
 
     def update_price_widgets(self, data: dict) -> None:
         for coin, info in data.items():
-            if coin in self.price_widgets:
-                self.price_widgets[coin].update_price(
-                    coin, info["price"], info["color"]
-                )
+            try:
+                if coin in self.price_widgets:
+                    self.price_widgets[coin].update_price(
+                        coin, info["price"], info["color"]
+                    )
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")

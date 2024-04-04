@@ -34,8 +34,11 @@ class PriceWidget(QWidget):
         self.price_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
     def update_price(self, ticket: str, price: float, color: str) -> None:
-        ticket_name = ticket.split("USDT")[0]
-        self.ticker_label.setText(ticket_name)
-        self.price_label.setText(f"${price}")
+        try:
+            ticket_name = ticket.split("USDT")[0]
+            self.ticker_label.setText(ticket_name)
+            self.price_label.setText(f"${price}")
 
-        self.price_label.setStyleSheet(f"color: {color};")
+            self.price_label.setStyleSheet(f"color: {color};")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
