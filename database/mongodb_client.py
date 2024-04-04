@@ -4,13 +4,11 @@ from PyQt6.QtCore import QObject, pyqtSlot
 from motor.motor_asyncio import AsyncIOMotorClient
 from loguru import logger
 
-from settings import MONGODB_URI
-
 
 class MongoDBClient(QObject):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.client = AsyncIOMotorClient(MONGODB_URI)
+        self.client = AsyncIOMotorClient("mongodb://localhost:27017/crypto_prices")
         self.db = self.client["crypto_prices"]
         self.collection = self.db["price_updates"]
         self._log = logger.bind(name="MongoDBClient")
