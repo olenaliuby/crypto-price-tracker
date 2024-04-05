@@ -1,5 +1,5 @@
 from loguru import logger
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 
 class DataHandler(QObject):
@@ -52,6 +52,7 @@ class DataHandler(QObject):
             self._log.error(f"An unexpected error occurred: {e}")
         return processed_data
 
+    @pyqtSlot(dict)
     def handle_data(self, data: dict) -> None:
         """Handles the received data and emits a signal with the processed data."""
         try:
