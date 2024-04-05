@@ -15,31 +15,31 @@ logger.add("logs/app_{time}.log", rotation="10 MB", retention="10 days", level="
 class CryptoPriceApp:
     def __init__(self) -> None:
         self._log = logger.bind(name="CryptoPriceApp")
-        self.app = QApplication([])
+        self._app = QApplication([])
 
-        self.mongodb_client = MongoDBClient()
-        self.mongodb_client.start()
+        self._mongodb_client = MongoDBClient()
+        self._mongodb_client.start()
 
-        self.websocket_client = WebSocketClient()
-        self.data_handler = DataHandler()
-        self.main_window = MainWindow()
+        self._websocket_client = WebSocketClient()
+        self._data_handler = DataHandler()
+        self._main_window = MainWindow()
 
-    def setup_connections(self) -> None:
-        self.websocket_client.price_update.connect(self.data_handler.handle_data)
-        self.data_handler.price_update_signal.connect(
-            self.main_window.update_price_widgets
+    def _setup_connections(self) -> None:
+        self._websocket_client.price_update.connect(self._data_handler.handle_data)
+        self._data_handler.price_update_signal.connect(
+            self._main_window.update_price_widgets
         )
-        self.data_handler.price_update_signal.connect(
+        self._data_handler.price_update_signal.connect(
             lambda data: asyncio.run_coroutine_threadsafe(
-                self.mongodb_client.store_price_data(data), self.mongodb_client.loop
+                self._mongodb_client.store_price_data(data), self._mongodb_client.loop
             )
         )
 
     def start(self) -> None:
-        self.main_window.show()
-        self.setup_connections()
-        self.websocket_client.start()
-        sys.exit(self.app.exec())
+        self._main_window.show()
+        self._setup_connections()
+        self._websocket_client.start()
+        sys.exit(self._app.exec())
 
 
 if __name__ == "__main__":
