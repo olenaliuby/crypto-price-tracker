@@ -25,11 +25,13 @@ class CryptoPriceApp:
         self._main_window = MainWindow()
 
     def _setup_connections(self) -> None:
-        self._websocket_client.price_update.connect(self._data_handler.handle_data)
-        self._data_handler.price_update_signal.connect(
+        self._websocket_client.raw_price_update_signal.connect(
+            self._data_handler.handle_data
+        )
+        self._data_handler.processed_price_update_signal.connect(
             self._main_window.update_price_widgets
         )
-        self._data_handler.price_update_signal.connect(
+        self._data_handler.processed_price_update_signal.connect(
             lambda data: asyncio.run_coroutine_threadsafe(
                 self._mongodb_client.store_price_data(data), self._mongodb_client.loop
             )
