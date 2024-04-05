@@ -1,7 +1,7 @@
-import sys
 import asyncio
+import sys
+
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QThread
 from loguru import logger
 
 from database.mongodb_client import MongoDBClient
@@ -9,17 +9,7 @@ from websocket_client.client import WebSocketClient
 from data_handler.handler import DataHandler
 from ui.main_window import MainWindow
 
-
 logger.add("logs/app_{time}.log", rotation="10 MB", retention="10 days", level="INFO")
-
-
-class AsyncioThread(QThread):
-    def __init__(self, loop: asyncio.AbstractEventLoop) -> None:
-        super().__init__()
-        self.loop = loop
-
-    def run(self) -> None:
-        self.loop.run_forever()
 
 
 class CryptoPriceApp:
@@ -27,14 +17,11 @@ class CryptoPriceApp:
         self._log = logger.bind(name="CryptoPriceApp")
         self.app = QApplication([])
 
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-
-        self.asyncio_thread = AsyncioThread(self.loop)
+        self.mongodb_client = MongoDBClient()
+        self.mongodb_client.start()
 
         self.websocket_client = WebSocketClient()
         self.data_handler = DataHandler()
-        self.mongodb_client = MongoDBClient()
         self.main_window = MainWindow()
 
     def setup_connections(self) -> None:
@@ -44,12 +31,11 @@ class CryptoPriceApp:
         )
         self.data_handler.price_update_signal.connect(
             lambda data: asyncio.run_coroutine_threadsafe(
-                self.mongodb_client.store_price_data(data), self.loop
+                self.mongodb_client.store_price_data(data), self.mongodb_client.loop
             )
         )
 
     def start(self) -> None:
-        self.asyncio_thread.start()
         self.main_window.show()
         self.setup_connections()
         self.websocket_client.start()
