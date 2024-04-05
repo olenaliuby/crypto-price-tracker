@@ -9,9 +9,9 @@ import asyncio
 class MongoDBClient(QThread):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.client = AsyncIOMotorClient("mongodb://localhost:27017/crypto_prices")
-        self.db = self.client["crypto_prices"]
-        self.collection = self.db["price_updates"]
+        self._client = AsyncIOMotorClient("mongodb://localhost:27017/crypto_prices")
+        self._db = self._client["crypto_prices"]
+        self._collection = self._db["price_updates"]
         self._log = logger.bind(name="MongoDBClient")
         self.loop = asyncio.new_event_loop()
 
@@ -28,6 +28,6 @@ class MongoDBClient(QThread):
                 "date": datetime.utcnow(),
             }
             try:
-                await self.collection.insert_one(document)
+                await self._collection.insert_one(document)
             except Exception as e:
                 self._log.error(f"Failed to store data in MongoDB for {symbol}: {e}")
