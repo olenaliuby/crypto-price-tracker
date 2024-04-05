@@ -12,15 +12,15 @@ class WebSocketClient(QThread):
 
     def __init__(self) -> None:
         super().__init__()
-        self.coins = CRYPTO_COINS
-        self.streams = "/".join(self.coins.values())
-        self.url = f"wss://fstream.binance.com/stream?streams={self.streams}"
+        self._coins = CRYPTO_COINS
+        self._streams = "/".join(self._coins.values())
+        self._url = f"wss://fstream.binance.com/stream?streams={self._streams}"
         self._log = logger.bind(name="WebSocketClient")
 
     def run(self) -> None:
         try:
             ws = WebSocketApp(
-                self.url,
+                self._url,
                 on_message=self.on_message,
                 on_error=self.on_error,
                 on_close=self.on_close,
