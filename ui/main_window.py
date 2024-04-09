@@ -1,3 +1,4 @@
+from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
 from utils.coins import CRYPTO_COINS
@@ -26,6 +27,7 @@ class MainWindow(QMainWindow):
             self.layout.addWidget(price_widget)
             self.price_widgets[coin] = price_widget
 
+    @pyqtSlot(dict)
     def update_price_widgets(self, data: dict) -> None:
         for coin, info in data.items():
             try:

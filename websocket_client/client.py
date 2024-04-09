@@ -8,19 +8,19 @@ from utils.coins import CRYPTO_COINS
 
 
 class WebSocketClient(QThread):
-    price_update = pyqtSignal(dict)
+    raw_price_update_signal = pyqtSignal(dict)
 
     def __init__(self) -> None:
         super().__init__()
-        self.coins = CRYPTO_COINS
-        self.streams = "/".join(self.coins.values())
-        self.url = f"wss://fstream.binance.com/stream?streams={self.streams}"
+        self._coins = CRYPTO_COINS
+        self._streams = "/".join(self._coins.values())
+        self._url = f"wss://fstream.binance.com/stream?streams={self._streams}"
         self._log = logger.bind(name="WebSocketClient")
 
     def run(self) -> None:
         try:
             ws = WebSocketApp(
-                self.url,
+                self._url,
                 on_message=self.on_message,
                 on_error=self.on_error,
                 on_close=self.on_close,
@@ -33,7 +33,7 @@ class WebSocketClient(QThread):
     def on_message(self, ws: WebSocket, message: str) -> None:
         try:
             trade_info = json.loads(message)
-            self.price_update.emit(trade_info)  # noqa
+            self.raw_price_update_signal.emit(trade_info)  # noqa
         except json.JSONDecodeError as e:
             self._log.error(f"Error decoding message: {e}")
 

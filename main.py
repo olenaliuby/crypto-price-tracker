@@ -1,7 +1,7 @@
-import sys
 import asyncio
+import sys
+
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QThread
 from loguru import logger
 
 from database.mongodb_client import MongoDBClient
@@ -9,51 +9,39 @@ from websocket_client.client import WebSocketClient
 from data_handler.handler import DataHandler
 from ui.main_window import MainWindow
 
-
 logger.add("logs/app_{time}.log", rotation="10 MB", retention="10 days", level="INFO")
-
-
-class AsyncioThread(QThread):
-    def __init__(self, loop: asyncio.AbstractEventLoop) -> None:
-        super().__init__()
-        self.loop = loop
-
-    def run(self) -> None:
-        self.loop.run_forever()
 
 
 class CryptoPriceApp:
     def __init__(self) -> None:
         self._log = logger.bind(name="CryptoPriceApp")
-        self.app = QApplication([])
+        self._app = QApplication([])
 
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
+        self._mongodb_client = MongoDBClient()
+        self._mongodb_client.start()
 
-        self.asyncio_thread = AsyncioThread(self.loop)
+        self._websocket_client = WebSocketClient()
+        self._data_handler = DataHandler()
+        self._main_window = MainWindow()
 
-        self.websocket_client = WebSocketClient()
-        self.data_handler = DataHandler()
-        self.mongodb_client = MongoDBClient()
-        self.main_window = MainWindow()
-
-    def setup_connections(self) -> None:
-        self.websocket_client.price_update.connect(self.data_handler.handle_data)
-        self.data_handler.price_update_signal.connect(
-            self.main_window.update_price_widgets
+    def _setup_connections(self) -> None:
+        self._websocket_client.raw_price_update_signal.connect(
+            self._data_handler.handle_data
         )
-        self.data_handler.price_update_signal.connect(
+        self._data_handler.processed_price_update_signal.connect(
+            self._main_window.update_price_widgets
+        )
+        self._data_handler.processed_price_update_signal.connect(
             lambda data: asyncio.run_coroutine_threadsafe(
-                self.mongodb_client.store_price_data(data), self.loop
+                self._mongodb_client.store_price_data(data), self._mongodb_client.loop
             )
         )
 
     def start(self) -> None:
-        self.asyncio_thread.start()
-        self.main_window.show()
-        self.setup_connections()
-        self.websocket_client.start()
-        sys.exit(self.app.exec())
+        self._main_window.show()
+        self._setup_connections()
+        self._websocket_client.start()
+        sys.exit(self._app.exec())
 
 
 if __name__ == "__main__":

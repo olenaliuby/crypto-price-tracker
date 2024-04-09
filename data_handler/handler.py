@@ -1,9 +1,9 @@
 from loguru import logger
-from PyQt6.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal, pyqtSlot
 
 
 class DataHandler(QObject):
-    price_update_signal = pyqtSignal(dict)
+    processed_price_update_signal = pyqtSignal(dict)
 
     def __init__(self) -> None:
         super().__init__()
@@ -52,10 +52,11 @@ class DataHandler(QObject):
             self._log.error(f"An unexpected error occurred: {e}")
         return processed_data
 
+    @pyqtSlot(dict)
     def handle_data(self, data: dict) -> None:
         """Handles the received data and emits a signal with the processed data."""
         try:
             processed_data = self.process_price_data(data)
-            self.price_update_signal.emit(processed_data)  # noqa
+            self.processed_price_update_signal.emit(processed_data)  # noqa
         except Exception as e:
             self._log.error(f"An error occurred while handling data: {e}")
