@@ -1,7 +1,7 @@
 from PyQt6.QtCore import pyqtSlot
 from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 
-from utils.coins import CRYPTO_COINS
+from config.coins import CRYPTO_COINS
 from .widgets.price_widget import PriceWidget
 
 

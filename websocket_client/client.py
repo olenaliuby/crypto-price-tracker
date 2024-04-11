@@ -4,7 +4,7 @@ from loguru import logger
 from PyQt6.QtCore import QThread, pyqtSignal
 from websocket import WebSocketApp, WebSocket
 
-from utils.coins import CRYPTO_COINS
+from config.coins import CRYPTO_COINS
 
 
 class WebSocketClient(QThread):

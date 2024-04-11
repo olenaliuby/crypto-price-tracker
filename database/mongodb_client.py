@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from PyQt6.QtCore import QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QThread, pyqtSlot
 from motor.motor_asyncio import AsyncIOMotorClient
 from loguru import logger
 import asyncio
