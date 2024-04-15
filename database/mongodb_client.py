@@ -17,7 +17,10 @@ class MongoDBClient(QThread):
 
     def run(self) -> None:
         asyncio.set_event_loop(self.loop)
-        self.loop.run_forever()
+        try:
+            self.loop.run_forever()
+        finally:
+            self.loop.close()
 
     @pyqtSlot(dict)
     async def store_price_data(self, data: dict) -> None:

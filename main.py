@@ -1,5 +1,6 @@
 import asyncio
 import sys
+import os
 
 from PyQt6.QtWidgets import QApplication
 from loguru import logger
@@ -9,7 +10,15 @@ from websocket_client.client import WebSocketClient
 from data_handler.handler import DataHandler
 from ui.main_window import MainWindow
 
-logger.add("logs/app_{time}.log", rotation="10 MB", retention="10 days", level="INFO")
+log_directory = os.path.join(os.path.expanduser("~"), "CryptoPriceTrackerLogs")
+os.makedirs(log_directory, exist_ok=True)
+
+logger.add(
+    f"{log_directory}/app_{{time}}.log",
+    rotation="10 MB",
+    retention="10 days",
+    level="INFO",
+)
 
 
 class CryptoPriceApp:
@@ -22,7 +31,11 @@ class CryptoPriceApp:
 
         self._websocket_client = WebSocketClient()
         self._data_handler = DataHandler()
+
         self._main_window = MainWindow()
+        self._main_window.show()
+
+        self._setup_connections()
 
     def _setup_connections(self) -> None:
         self._websocket_client.raw_price_update_signal.connect(
@@ -38,8 +51,6 @@ class CryptoPriceApp:
         )
 
     def start(self) -> None:
-        self._main_window.show()
-        self._setup_connections()
         self._websocket_client.start()
         sys.exit(self._app.exec())
 
